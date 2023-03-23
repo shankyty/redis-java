@@ -7,8 +7,10 @@ import java.util.concurrent.Executors;
 public class Main {
 
     public static void main(String[] args) {
-        try(ExecutorService taskExecutor = Executors.newCachedThreadPool(Executors
-                .defaultThreadFactory())) {
+        ExecutorService taskExecutor = null;
+        try {
+            taskExecutor = Executors.newCachedThreadPool(Executors
+                    .defaultThreadFactory());
             // You can use print statements as follows for debugging, they'll be visible when running tests.
             System.out.println(namePrefix() + "Logs from your program will appear here!");
             //  Uncomment this block to pass the first stage
@@ -24,6 +26,13 @@ public class Main {
                 }
             } catch (IOException e) {
                 logException(e);
+            }
+        } finally {
+            if(taskExecutor != null) {
+                taskExecutor.shutdown();
+                while (taskExecutor.isTerminated()) {
+
+                }
             }
         }
     }
