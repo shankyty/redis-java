@@ -107,7 +107,7 @@ public class Main {
         String[] commands = commandStr.split(RESP_DELIMITER);
         int len = commands.length;
         if(len < 1){
-            return new CommandImpl(CommandType.unknown, List.of(commands));
+            return new CommandImpl(CommandType.unknown, Arrays.asList(commands));
         }
         int offest = 0;
         if(commands[0].charAt(0) == '*')
