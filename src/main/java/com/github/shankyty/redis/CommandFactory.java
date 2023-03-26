@@ -1,6 +1,7 @@
 package com.github.shankyty.redis;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CommandFactory {
@@ -8,7 +9,7 @@ public class CommandFactory {
     public Command getCommand(String commandKey, List<String> args){
         CommandType type = tryParse(commandKey);
         if(CommandType.unknown.equals(type)){
-            args = List.of(commandKey);
+            args = Collections.singletonList(commandKey);
         }
         return new CommandImpl(type, args);
     }
