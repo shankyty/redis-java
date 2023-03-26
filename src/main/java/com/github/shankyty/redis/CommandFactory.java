@@ -16,7 +16,7 @@ public class CommandFactory {
 
     private CommandType tryParse(String type) {
         try{
-            return CommandType.valueOf(type);
+            return CommandType.valueOf(type.toLowerCase());
         } catch (Exception ex){
             return CommandType.unknown;
         }

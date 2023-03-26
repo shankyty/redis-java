@@ -12,7 +12,6 @@ import java.util.List;
 
 public class Main {
 
-    public static final String PONG = "+PONG\r\n";
     public static final int CAPACITY = 1_024;
     public static final String RESP_DELIMITER = "\r\n";
     public static final String ARRAY_TOKEN = "*";
@@ -149,23 +148,26 @@ public class Main {
         if(response.size() > 1) {
             writeBulkStrings(response, sb);
         } else if(response.size() == 1){
-            writeSimpleString(response, sb);
+            writeSimpleString(response.get(0), sb);
         } else {
-            writeEmptyString(response, sb);
+            writeEmptyString(sb);
         }
         System.out.println("response = " + sb);
         client.write(ByteBuffer.wrap(sb.toString().getBytes()));
     }
 
-    private static void writeEmptyString(List<String> response, StringBuilder sb) {
-        sb.append(ARRAY_TOKEN)
-                .append(response.size())
-                .append(RESP_DELIMITER);
-        response.forEach(__ -> sb.append(BULK_STRING_TOKEN)
-                .append(__.length())
+    private static void writeEmptyString(StringBuilder sb) {
+         sb.append(BULK_STRING_TOKEN)
+                .append(0)
                 .append(RESP_DELIMITER)
-                .append(__)
-                .append(RESP_DELIMITER));
+                .append("")
+                .append(RESP_DELIMITER);
+    }
+
+    private static void writeNullString(StringBuilder sb) {
+        sb.append(BULK_STRING_TOKEN)
+                .append(-1)
+                .append(RESP_DELIMITER);
     }
     private static void writeError(SocketChannel client, List<String> response) throws IOException {
         StringBuilder sb = new StringBuilder();
@@ -176,11 +178,16 @@ public class Main {
         client.write(ByteBuffer.wrap(sb.toString().getBytes()));
     }
 
-    private static StringBuilder writeSimpleString(List<String> response, StringBuilder sb) {
-        sb.append(SIMPLE_STRING_TOKEN);
-        response.forEach(__ -> sb
-                .append(__)
-                .append(RESP_DELIMITER));
+    private static StringBuilder writeSimpleString(String response, StringBuilder sb) {
+        if(response == null){
+            writeNullString(sb);
+        } else if (response.length() == 0) {
+            writeEmptyString(sb);
+        } else {
+            sb.append(SIMPLE_STRING_TOKEN);
+            sb.append(response)
+                    .append(RESP_DELIMITER);
+        }
         return sb;
     }
 
@@ -188,12 +195,24 @@ public class Main {
         sb.append(ARRAY_TOKEN)
                 .append(response.size())
                 .append(RESP_DELIMITER);
-        response.forEach(__ -> sb.append(BULK_STRING_TOKEN)
-                .append(__.length())
-                .append(RESP_DELIMITER)
-                .append(__)
-                .append(RESP_DELIMITER));
+        response.forEach(__ -> {
+            if(__ == null){
+                writeNullString(sb);
+            } else if (__.length() == 0) {
+                writeEmptyString(sb);
+            } else {
+                writeBulkString(__, sb);
+            }
+        });
         return sb;
+    }
+
+    private static void writeBulkString(String value, StringBuilder sb) {
+        sb.append(BULK_STRING_TOKEN)
+                .append(value.length())
+                .append(RESP_DELIMITER)
+                .append(value)
+                .append(RESP_DELIMITER);
     }
 
 }
