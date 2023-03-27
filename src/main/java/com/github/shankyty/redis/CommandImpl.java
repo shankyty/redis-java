@@ -22,12 +22,19 @@ public class CommandImpl implements Command {
     @Override
     public List<String> getResponse() {
         switch (type) {
-            case ping : return args.isEmpty() ? Collections.singletonList("PONG") : args;
-            case echo : return args;
-            case set : InMemoryStore.getInstance().set(args.get(0), args.get(1)); return Collections.singletonList("OK");
-            case get : return Collections.singletonList(InMemoryStore.getInstance().get(args.get(0)));
-            case unknown : return Arrays.asList("ERR unknown command ", args.get(0));
-        };
+            case ping:
+                return args.isEmpty() ? Collections.singletonList("PONG") : args;
+            case echo:
+                return args;
+            case set:
+                InMemoryStore.getInstance().set(args.get(0), args.get(1));
+                return Collections.singletonList("OK");
+            case get:
+                return Collections.singletonList(InMemoryStore.getInstance().get(args.get(0)));
+            case unknown:
+                return Arrays.asList("ERR unknown command ", args.get(0));
+        }
+
         return Collections.emptyList();
     }
 
