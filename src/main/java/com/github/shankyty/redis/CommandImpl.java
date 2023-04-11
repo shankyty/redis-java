@@ -27,7 +27,11 @@ public class CommandImpl implements Command {
             case echo:
                 return args;
             case set:
-                InMemoryStore.getInstance().set(args.get(0), args.get(1));
+                if(args.size() == 2)
+                    InMemoryStore.getInstance().set(args.get(0), args.get(1));
+                else if(args.size() == 4){
+                    InMemoryStore.getInstance().set(args.get(0), args.get(1), Integer.parseInt(args.get(3)));
+                }
                 return Collections.singletonList("OK");
             case get:
                 return Collections.singletonList(InMemoryStore.getInstance().get(args.get(0)));
