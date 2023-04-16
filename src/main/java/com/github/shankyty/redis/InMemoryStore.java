@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.time.Instant.now;
-import static java.time.Instant.ofEpochMilli;
 
 public class InMemoryStore implements Store {
 
