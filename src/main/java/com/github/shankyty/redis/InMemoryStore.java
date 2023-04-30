@@ -13,17 +13,19 @@ public class InMemoryStore implements Store {
 
     Map<String, Object> map = new HashMap<>();
 
-    Map<String, Long> expiry = new HashMap<>();
+    Map<String, ExpiredKeyCleanupTask> expiry = new HashMap<>();
+
+    HashWheelTimer  timer = new HashWheelTimer(1000, 1000);
+
     @Override
     @SuppressWarnings("unchecked")
     public <V> V get(String key) {
         V val = (V)map.get(key);
-        Long  time = expiry.get(key);
-        if(time != null  ){
+        ExpiredKeyCleanupTask  task = expiry.get(key);
+        if(task != null  ){
             long now = Instant.now().toEpochMilli();
-            if(time <= now){
-                map.remove(key);
-                expiry.remove(key);
+            if(task.getExpiry() <= now){
+                task.execute();
                 return null;
             }
         }
@@ -32,14 +34,34 @@ public class InMemoryStore implements Store {
     }
 
     @Override
-    public <V> void set(String key, V value) {
+    public <V> void set(String key,
+                        V value) {
         map.put(key,value);
     }
 
     @Override
-    public <V> void set(String key, V value, int expiry) {
+    public <V> void set(String key,
+                        V value,
+                        int expiry) {
         this.map.put(key, value);
-        this.expiry.put(key, now().plus(Duration.ofMillis(expiry)).toEpochMilli());
+        ExpiredKeyCleanupTask cleanupTask = new ExpiredKeyCleanupTask(key,
+                now().plus(Duration.ofMillis(expiry)).toEpochMilli(),
+                this);
+        this.expiry.put(key,cleanupTask);
+        timer.addTimer(cleanupTask.getExpiry(),
+                cleanupTask);
+    }
+
+    @Override
+    public void remove(String key) {
+        map.remove(key);
+        expiry.remove(key);
+    }
+
+
+    @Override
+    public void cleanup() {
+       timer.tick();
     }
 
 

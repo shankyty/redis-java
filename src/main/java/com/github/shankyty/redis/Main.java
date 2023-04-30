@@ -20,7 +20,6 @@ public class Main {
     private static final String ERROR_TOKEN = "-";
 
     public static void main(String[] args) throws IOException {
-
         int port = 6379;
         Selector selector = Selector.open();
         ServerSocketChannel serverSocket = ServerSocketChannel.open();
@@ -30,19 +29,21 @@ public class Main {
         ByteBuffer buffer = ByteBuffer.allocate(CAPACITY);
 
         while (true) {
-            selector.select();
-            Set<SelectionKey> selectedKeys = selector.selectedKeys();
-            Iterator<SelectionKey> iter = selectedKeys.iterator();
-            while (iter.hasNext()) {
-                SelectionKey key = iter.next();
-                if (key.isAcceptable()) {
-                    register(selector, serverSocket, key);
-                } else if (key.isReadable()) {
-                    read(buffer, key);
-                } else if (key.isWritable()) {
-                    write(key);
+            InMemoryStore.getInstance().cleanup();
+            if(selector.selectNow() > 0) {
+                Set<SelectionKey> selectedKeys = selector.selectedKeys();
+                Iterator<SelectionKey> iter = selectedKeys.iterator();
+                while (iter.hasNext()) {
+                    SelectionKey key = iter.next();
+                    if (key.isAcceptable()) {
+                        register(selector, serverSocket, key);
+                    } else if (key.isReadable()) {
+                        read(buffer, key);
+                    } else if (key.isWritable()) {
+                        write(key);
+                    }
+                    iter.remove();
                 }
-                iter.remove();
             }
         }
     }
