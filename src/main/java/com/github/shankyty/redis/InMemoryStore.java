@@ -15,7 +15,7 @@ public class InMemoryStore implements Store {
 
     Map<String, ExpiredKeyCleanupTask> expiry = new HashMap<>();
 
-    HashWheelTimer  timer = new HashWheelTimer(1000, 1000);
+    HashWheelTimer  timer = new HashWheelTimer(100, 1000);
 
     @Override
     @SuppressWarnings("unchecked")

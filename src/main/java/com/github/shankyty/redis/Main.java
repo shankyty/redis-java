@@ -161,7 +161,6 @@ public class Main {
          sb.append(BULK_STRING_TOKEN)
                 .append(0)
                 .append(RESP_DELIMITER)
-                .append("")
                 .append(RESP_DELIMITER);
     }
 
@@ -182,7 +181,7 @@ public class Main {
     private static StringBuilder writeSimpleString(String response, StringBuilder sb) {
         if(response == null){
             writeNullString(sb);
-        } else if (response.length() == 0) {
+        } else if (response.isEmpty()) {
             writeEmptyString(sb);
         } else {
             sb.append(SIMPLE_STRING_TOKEN);
@@ -199,7 +198,7 @@ public class Main {
         response.forEach(__ -> {
             if(__ == null){
                 writeNullString(sb);
-            } else if (__.length() == 0) {
+            } else if (__.isEmpty()) {
                 writeEmptyString(sb);
             } else {
                 writeBulkString(__, sb);

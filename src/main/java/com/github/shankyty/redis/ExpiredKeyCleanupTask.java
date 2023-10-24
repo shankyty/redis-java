@@ -23,4 +23,12 @@ public class ExpiredKeyCleanupTask  implements HashWheelTimer.Task {
     public void execute() {
         store.remove(key);
     }
+
+    @Override
+    public String toString() {
+        return "ExpiredKeyCleanupTask{" +
+                "key='" + key + '\'' +
+                ", expiry=" + expiry +
+                '}';
+    }
 }

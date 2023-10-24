@@ -21,13 +21,16 @@ public class HashWheelTimer {
         this.numSlots = numSlots;
         slots = new ArrayList<>(numSlots);
         for (int i = 0; i < numSlots; i++) {
-            slots.add(new ConcurrentLinkedQueue<Task>());
+            slots.add(new ConcurrentLinkedQueue<>());
         }
     }
 
-    public void addTimer(long delay, Task task) {
+    public void addTimer(long expiry, Task task) {
+        long currentTime = System.currentTimeMillis();
+        long delay = expiry - currentTime;
         int slot = (currentSlot + (int) (delay / tickTime)) % numSlots;
         slots.get(slot).offer(task);
+        System.out.println("[" + System.currentTimeMillis() + "] added " + task);
     }
 
     public void tick() {
@@ -38,9 +41,11 @@ public class HashWheelTimer {
                 int tickSlot = (currentSlot + i) % numSlots;
                 Queue<Task> currentSlotTasks = slots.get(tickSlot);
                 int k  = 0;
-                while (!currentSlotTasks.isEmpty()) {
-                    Task task = currentSlotTasks.poll();
+                while (!currentSlotTasks.isEmpty()
+                && ((ExpiredKeyCleanupTask) currentSlotTasks.peek()).getExpiry() <= currentTime) {
+                    ExpiredKeyCleanupTask task = (ExpiredKeyCleanupTask) currentSlotTasks.poll();
                     task.execute();
+                    System.out.println("[" + System.currentTimeMillis() + "] cleaned " + task);
                     k++;
                 }
                 if(k > 0)
