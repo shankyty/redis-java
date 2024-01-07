@@ -40,7 +40,8 @@ public class CommandImpl implements Command {
                 return Collections.singletonList(InMemoryStore.getInstance().get(args.get(0)));
             case config:
                 if("GET".equalsIgnoreCase(args.get(0))) {
-                    return Collections.singletonList(ConfigStore.getInstance().get(args.get(1)));
+                    return Arrays.asList(args.get(1),
+                                ConfigStore.getInstance().get(args.get(1)));
                 } else if ("--dir".equalsIgnoreCase(args.get(0))) {
                     ConfigStore.getInstance().set("dir", args.get(1));
                     return Collections.singletonList("OK");
