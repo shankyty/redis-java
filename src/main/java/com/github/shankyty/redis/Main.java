@@ -27,7 +27,15 @@ public class Main {
         serverSocket.configureBlocking(false);
         serverSocket.register(selector, SelectionKey.OP_ACCEPT);
         ByteBuffer buffer = ByteBuffer.allocate(CAPACITY);
-
+        for (int i = 0; i < args.length; i++) {
+            switch (args[i]){
+                case "--dir":
+                case "--dbfilename":
+                    new CommandImpl(CommandType.config, Arrays.asList(args[i],args[i + 1])).getResponse();
+                    i++;
+                default:
+            }
+        }
         while (true) {
             InMemoryStore.getInstance().cleanup();
             if(selector.selectNow() > 0) {

@@ -5,5 +5,6 @@ public enum CommandType {
     echo,
     unknown,
     set,
-    get
+    get,
+    config,
 }
